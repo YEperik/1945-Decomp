@@ -26,3 +26,19 @@ __pycache__/
 *.gpr
 *.rep/
 *.lock
+
+# Android/Gradle native build outputs.
+**/build/
+.cxx/
+.externalNativeBuild/
+*.iml
+*.jks
+*.keystore
+
+# Do not commit original/proprietary game media or executables.
+*.7z
+*.bin
+*.cue
+*.iso
+*.elf
+*.gzf
