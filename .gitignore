@@ -1,0 +1,23 @@
+# Original game media and extracted proprietary content are kept out of Git.
+/source-media-working-copy/**
+!/source-media-working-copy/.gitkeep
+
+# Build outputs and local IDE/tool configuration.
+/build/
+/cmake-build-*/
+/.gradle/
+/local.properties
+/.idea/
+/.vscode/
+*.apk
+*.aab
+*.so
+*.o
+*.a
+*.class
+*.log
+
+# Python test/tool caches.
+__pycache__/
+.pytest_cache/
+*.pyc
