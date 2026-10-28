@@ -7,7 +7,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "org.YEperik-1945-Decomp.port1945"
+        applicationId = "org.YEperik.port1945"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
