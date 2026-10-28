@@ -21,3 +21,8 @@
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# Ghidra project databases may contain imported proprietary executables.
+*.gpr
+*.rep/
+*.lock
