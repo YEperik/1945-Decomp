@@ -118,3 +118,65 @@ uint32_t ps2_pad_process_report(Ps2PadRecord *record,
 
     return packet[1];
 }
+
+static int32_t clamp_centered_axis(int16_t value)
+{
+    if (value < -128) {
+        return -128;
+    }
+    if (value > 127) {
+        return 127;
+    }
+    return value;
+}
+
+uint32_t ps2_pad_apply_native_sample(Ps2PadRecord *record,
+                                     uint16_t buttons_mask,
+                                     const int16_t axes[4],
+                                     bool connected)
+{
+    uint16_t old_pressed;
+    uint16_t old_axis_directions;
+
+    if (record == NULL) {
+        return 0;
+    }
+    if (!connected || axes == NULL) {
+        ps2_pad_reset_input_fields(record);
+        return 0;
+    }
+
+    old_pressed = record->current_pressed;
+    old_axis_directions = record->current_axis_directions;
+
+    record->previous_pressed = old_pressed;
+    record->current_pressed = buttons_mask;
+    record->pressed_edges = (uint16_t)(buttons_mask & (uint16_t)~old_pressed);
+    record->previous_axis_directions = old_axis_directions;
+
+    /* Keep native callers inside the byte-minus-0x80 range of the target. */
+    record->axis_a_x = clamp_centered_axis(axes[0]);
+    record->axis_a_y = clamp_centered_axis(axes[1]);
+    record->axis_b_x = clamp_centered_axis(axes[2]);
+    record->axis_b_y = clamp_centered_axis(axes[3]);
+
+    /* Match the numeric 0xf000 gate from the original report path. */
+    if ((record->current_pressed & 0xf000u) != 0) {
+        record->axis_b_x = 0;
+        record->axis_b_y = 0;
+    }
+
+    record->current_axis_directions = 0;
+    add_axis_direction(record->axis_a_x, 0x02, 0x01,
+                       &record->current_axis_directions);
+    add_axis_direction(record->axis_a_y, 0x08, 0x04,
+                       &record->current_axis_directions);
+    add_axis_direction(record->axis_b_x, 0x20, 0x10,
+                       &record->current_axis_directions);
+    add_axis_direction(record->axis_b_y, 0x80, 0x40,
+                       &record->current_axis_directions);
+    record->axis_direction_edges = (uint16_t)(
+        record->current_axis_directions & (uint16_t)~old_axis_directions);
+
+    return 1;
+}

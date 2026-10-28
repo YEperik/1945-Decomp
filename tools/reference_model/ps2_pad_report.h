@@ -52,6 +52,17 @@ uint32_t ps2_pad_process_report(Ps2PadRecord *record,
                                 uint32_t read_result,
                                 const uint8_t packet[8]);
 
+/* Direct native-input bridge. `buttons_mask` is already active-high in the
+ * game's numeric bit layout; axis order is A-X, A-Y, B-X, B-Y in signed
+ * centered units [-128,127]. This updates only input-derived fields and does
+ * not emulate the original API report/status state machine. `connected=false`
+ * follows the observed reset-helper scope. Returns 1 for an applied sample,
+ * 0 when disconnected/invalid. */
+uint32_t ps2_pad_apply_native_sample(Ps2PadRecord *record,
+                                     uint16_t buttons_mask,
+                                     const int16_t axes[4],
+                                     bool connected);
+
 #ifdef __cplusplus
 }
 #endif
