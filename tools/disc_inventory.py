@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only inventory of a 2352-byte-sector Mode 2 PlayStation disc image.
+"""Read-only integrity inventory of a 2352-byte-sector PlayStation disc image.
 
-The tool validates basic raw-sector sync/mode/MSF/subheader structure, reads an
-ISO9660-style volume descriptor, walks directory records with bounds checks,
-and hashes file payloads without extracting original file contents. It does not
-verify CD-ROM EDC/ECC, PlayStation-specific metadata, or game authenticity.
+The tool validates raw-sector headers and XA Form 1 EDC/ECC, parses the
+ISO9660-style volume descriptors and path tables, checks extent bounds and
+overlaps, and hashes file payloads without extracting original file contents.
+These checks do not prove PlayStation-specific full conformance or authenticity.
 """
 from __future__ import annotations
 
@@ -12,7 +12,11 @@ import argparse
 import csv
 import hashlib
 import json
+import os
+import shutil
+import subprocess
 import sys
+import tempfile
 from collections import Counter
 from pathlib import Path
 from typing import Any, BinaryIO
@@ -22,6 +26,35 @@ USER_DATA_OFFSET = 24
 BLOCK_SIZE = 2048
 SYNC = b"\x00" + b"\xff" * 10 + b"\x00"
 MAX_PATH_CHARS = 4096
+EDC_POLY = 0xD8018001
+
+
+def _make_edc_lut() -> tuple[int, ...]:
+    table = []
+    for value in range(256):
+        remainder = value
+        for _ in range(8):
+            remainder = (remainder >> 1) ^ (EDC_POLY if remainder & 1 else 0)
+        table.append(remainder)
+    return tuple(table)
+
+
+EDC_LUT = _make_edc_lut()
+
+
+def _make_ecc_luts() -> tuple[tuple[int, ...], tuple[int, ...]]:
+    forward = [0] * 256
+    backward = [0] * 256
+    for value in range(256):
+        doubled = value << 1
+        if doubled & 0x100:
+            doubled ^= 0x11D
+        forward[value] = doubled
+        backward[value ^ doubled] = value
+    return tuple(forward), tuple(backward)
+
+
+ECC_FORWARD, ECC_BACKWARD = _make_ecc_luts()
 
 
 def bcd_to_int(value: int) -> int:
@@ -149,7 +182,367 @@ def check_sector_headers(f: BinaryIO, total_sectors: int, max_findings: int = 40
         "finding_count": sum(counts[k] for k in ("sync_mismatch", "non_mode2", "msf_mismatch", "invalid_msf", "subheader_mismatch")),
         "findings_truncated_to": max_findings,
         "findings": findings,
-        "edc_ecc_verified": False,
+        "edc_ecc_checked_by_header_scanner": False,
+    }
+
+
+def cdrom_edc(data: bytes) -> int:
+    """Compute the CD-ROM EDC CRC (reflected polynomial 0xD8018001)."""
+    value = 0
+    for byte in data:
+        value = (value >> 8) ^ EDC_LUT[(value ^ byte) & 0xFF]
+    return value
+
+
+def cdrom_ecc(data: bytes, major_count: int, minor_count: int,
+              major_mult: int, minor_inc: int) -> bytes:
+    """Calculate one CD-ROM Reed-Solomon ECC parity block."""
+    expected_len = major_count * minor_count
+    if len(data) != expected_len:
+        raise ValueError(f"ECC source length {len(data)} != expected {expected_len}")
+    if major_mult <= 0 or minor_inc <= 0:
+        raise ValueError("ECC strides must be positive")
+    parity = bytearray(major_count * 2)
+    for major in range(major_count):
+        index = (major >> 1) * major_mult + (major & 1)
+        ecc_a = 0
+        ecc_b = 0
+        for _ in range(minor_count):
+            symbol = data[index]
+            index += minor_inc
+            if index >= expected_len:
+                index -= expected_len
+            ecc_a ^= symbol
+            ecc_b ^= symbol
+            ecc_a = ECC_FORWARD[ecc_a]
+        ecc_a = ECC_BACKWARD[ECC_FORWARD[ecc_a] ^ ecc_b]
+        parity[major] = ecc_a
+        parity[major + major_count] = ecc_a ^ ecc_b
+    return bytes(parity)
+
+
+def verify_mode2_form1_sector(raw: bytes) -> dict[str, bool]:
+    """Check EDC, P parity and Q parity in a raw Mode 2 Form 1 sector.
+
+    XA Form 1 layout: duplicated subheader at 16..23, 2048 user bytes at
+    24..2071, EDC at 2072..2075, P parity at 2076..2247 and Q parity at
+    2248..2351. Mode 2 ECC is computed with the four address bytes zeroed.
+    """
+    if len(raw) != SECTOR_SIZE:
+        raise ValueError("raw sector must be exactly 2352 bytes")
+    if raw[15] != 2:
+        raise ValueError("sector is not Mode 2")
+    if raw[18] & 0x20:
+        raise ValueError("Mode 2 Form 2 sector is unsupported by this verifier")
+    if raw[16:20] != raw[20:24]:
+        raise ValueError("XA subheader copies differ")
+
+    expected_edc = cdrom_edc(raw[16:2072]).to_bytes(4, "little")
+    edc_ok = raw[2072:2076] == expected_edc
+
+    p_source = bytearray(raw[12:2076])
+    p_source[:4] = b"\x00" * 4
+    expected_p = cdrom_ecc(bytes(p_source), 86, 24, 2, 86)
+    p_ok = raw[2076:2248] == expected_p
+
+    q_source = bytearray(raw[12:2248])
+    q_source[:4] = b"\x00" * 4
+    expected_q = cdrom_ecc(bytes(q_source), 52, 43, 86, 88)
+    q_ok = raw[2248:2352] == expected_q
+    return {"edc_ok": edc_ok, "ecc_p_ok": p_ok, "ecc_q_ok": q_ok}
+
+
+def check_sector_edc_ecc(f: BinaryIO, total_sectors: int,
+                         max_findings: int = 100) -> dict[str, Any]:
+    """Verify stored EDC/P/Q checks on Mode 2 Form 1 data sectors.
+
+    Sectors whose XA submode does not mark them as data are explicitly
+    counted as skipped; Form 2 sectors are reported as unsupported, not
+    silently treated as verified.
+    """
+    counts: Counter[str] = Counter()
+    findings: list[dict[str, Any]] = []
+    for lba in range(total_sectors):
+        raw = read_raw_sector(f, lba, total_sectors)
+        if raw[15] != 2:
+            counts["skipped_non_mode2"] += 1
+            continue
+        submode = raw[18]
+        if not (submode & 0x08):
+            counts["skipped_non_data"] += 1
+            continue
+        if submode & 0x20:
+            counts["skipped_form2_unsupported"] += 1
+            continue
+        counts["form1_data_sectors_checked"] += 1
+        try:
+            result = verify_mode2_form1_sector(raw)
+        except ValueError as exc:
+            counts["sector_verification_errors"] += 1
+            if len(findings) < max_findings:
+                findings.append({"lba": lba, "error": str(exc)})
+            continue
+        for key, ok in result.items():
+            label = key.removesuffix("_ok")
+            counts[f"{label}_{'passed' if ok else 'failed'}"] += 1
+            if not ok and len(findings) < max_findings:
+                findings.append({"lba": lba, "failed_check": label})
+    failures = sum(v for k, v in counts.items() if k.endswith("_failed")) + counts["sector_verification_errors"]
+    unsupported = counts["skipped_form2_unsupported"] > 0 or counts["skipped_non_mode2"] > 0
+    return {
+        "sector_count": total_sectors,
+        "eligible_data_sector_count": counts["form1_data_sectors_checked"],
+        "counts": dict(sorted(counts.items())),
+        "failure_count": failures,
+        "finding_count": failures,
+        "findings_truncated_to": max_findings,
+        "findings": findings,
+        "unsupported_sector_types_present": unsupported,
+        "all_eligible_sectors_verified": failures == 0 and not unsupported,
+    }
+
+
+def check_sector_edc_ecc_native(image_path: Path) -> dict[str, Any]:
+    """Run the C accelerator for full-disc EDC/ECC verification.
+
+    The pure-Python reference implementation remains available for tests and
+    small samples. Full disc images use the compiled implementation because
+    evaluating every parity symbol in Python is impractically slow.
+    The helper binary is cached under the system temp directory, never in the
+    project repository.
+    """
+    compiler = os.environ.get("CC") or shutil.which("cc") or shutil.which("clang")
+    if not compiler:
+        raise RuntimeError(
+            "full-disc EDC/ECC verification requires a C compiler (cc or clang); "
+            "no checks were skipped or represented as passed"
+        )
+    source = Path(__file__).with_name("cdrom_integrity.c")
+    if not source.is_file():
+        raise RuntimeError(f"native EDC/ECC source is missing: {source}")
+    source_id = hashlib.sha256(source.read_bytes()).hexdigest()[:16]
+    cache_dir = Path(tempfile.gettempdir()) / "1945-native-port-tools"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    executable = cache_dir / f"cdrom_integrity_{source_id}"
+    if not executable.is_file():
+        built = subprocess.run(
+            [compiler, "-O3", "-std=c11", "-Wall", "-Wextra", "-Werror",
+             str(source), "-o", str(executable)],
+            text=True, capture_output=True, check=False,
+        )
+        if built.returncode != 0:
+            raise RuntimeError(
+                f"failed to build native EDC/ECC verifier with {compiler}:\n"
+                f"{built.stdout}{built.stderr}"
+            )
+    result = subprocess.run(
+        [str(executable), str(image_path)], text=True,
+        capture_output=True, check=False,
+    )
+    if result.returncode not in (0, 3):
+        raise RuntimeError(
+            f"native EDC/ECC verifier failed (exit {result.returncode}): "
+            f"{result.stderr.strip() or result.stdout.strip()}"
+        )
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"native EDC/ECC verifier returned invalid JSON: {exc}") from exc
+    report["implementation"] = "C accelerator (source tools/cdrom_integrity.c)"
+    return report
+
+
+def read_volume_bytes(f: BinaryIO, start_lba: int, byte_count: int,
+                      volume_blocks: int) -> bytes:
+    if start_lba < 0 or byte_count < 0:
+        raise ValueError("negative path-table location or size")
+    if byte_count > volume_blocks * BLOCK_SIZE:
+        raise ValueError("path table size exceeds declared volume capacity")
+    block_count = (byte_count + BLOCK_SIZE - 1) // BLOCK_SIZE
+    if start_lba + block_count > volume_blocks:
+        raise ValueError("path table extends beyond declared volume")
+    out = bytearray()
+    for lba in range(start_lba, start_lba + block_count):
+        out.extend(read_block(f, lba, volume_blocks))
+    return bytes(out[:byte_count])
+
+
+def parse_path_table(raw: bytes, endian: str) -> list[dict[str, Any]]:
+    """Parse an ISO9660 path table, validating bounds and parent indices."""
+    if endian not in ("little", "big"):
+        raise ValueError("path table endian must be 'little' or 'big'")
+    entries: list[dict[str, Any]] = []
+    pos = 0
+    while pos < len(raw):
+        if len(raw) - pos < 8:
+            raise ValueError(f"truncated path table header at byte {pos}")
+        name_len = raw[pos]
+        ext_attr_len = raw[pos + 1]
+        if name_len == 0:
+            raise ValueError(f"zero-length path table identifier at byte {pos}")
+        total_len = 8 + name_len + (name_len & 1)
+        if pos + total_len > len(raw):
+            raise ValueError(f"path table identifier overruns table at byte {pos}")
+        extent_lba = int.from_bytes(raw[pos + 2:pos + 6], endian)
+        parent_index = int.from_bytes(raw[pos + 6:pos + 8], endian)
+        name = raw[pos + 8:pos + 8 + name_len]
+        idx = len(entries) + 1
+        if idx == 1:
+            if name != b"\x00" or parent_index != 1:
+                raise ValueError("first path table entry is not a valid root entry")
+        elif parent_index < 1 or parent_index >= idx:
+            raise ValueError(f"invalid parent index {parent_index} for path entry {idx}")
+        entries.append({
+            "index": idx,
+            "identifier_hex": name.hex(),
+            "identifier": "" if name == b"\x00" else name.decode("ascii", "replace"),
+            "extent_lba": extent_lba,
+            "extended_attribute_length": ext_attr_len,
+            "parent_index": parent_index,
+        })
+        pos += total_len
+    return entries
+
+
+def check_path_tables(f: BinaryIO, volume_blocks: int, path_table_size: int,
+                      path_locations: dict[str, int], root_extent_lba: int,
+                      directory_entries: list[dict[str, Any]]) -> dict[str, Any]:
+    errors: list[str] = []
+    tables: dict[str, list[dict[str, Any]]] = {}
+    variants = (
+        ("type_l", "little", "type_l_lba", False),
+        ("optional_type_l", "little", "optional_type_l_lba", True),
+        ("type_m", "big", "type_m_lba", False),
+        ("optional_type_m", "big", "optional_type_m_lba", True),
+    )
+    if path_table_size <= 0:
+        errors.append("primary volume descriptor declares an empty path table")
+    for name, endian, field, optional in variants:
+        lba = path_locations[field]
+        if not lba and optional:
+            continue
+        if not lba:
+            errors.append(f"required {name} path table location is zero")
+            continue
+        try:
+            raw = read_volume_bytes(f, lba, path_table_size, volume_blocks)
+            tables[name] = parse_path_table(raw, endian)
+        except ValueError as exc:
+            errors.append(f"{name}: {exc}")
+    primary = tables.get("type_l")
+    if primary:
+        if primary[0]["extent_lba"] != root_extent_lba:
+            errors.append("Type L path-table root extent disagrees with PVD root directory extent")
+        if primary[0]["extended_attribute_length"] != 0:
+            errors.append("Type L path-table root has unexpected extended-attribute length")
+        for name in ("optional_type_l", "type_m", "optional_type_m"):
+            other = tables.get(name)
+            if other is not None and other != primary:
+                errors.append(f"{name} path table disagrees with Type L path table")
+        resolved: list[dict[str, Any]] = []
+        for entry in primary:
+            if entry["index"] == 1:
+                path = ""
+            else:
+                parent = resolved[entry["parent_index"] - 1]
+                component = entry["identifier"]
+                path = f"{parent['path']}/{component}" if parent["path"] else component
+            resolved.append({**entry, "path": path})
+        actual_dirs = {"": root_extent_lba}
+        for entry in directory_entries:
+            if entry["type"] == "directory":
+                actual_dirs[entry["path"]] = entry["extent_lba"]
+        path_dirs = {entry["path"]: entry["extent_lba"] for entry in resolved}
+        missing_from_table = sorted(set(actual_dirs) - set(path_dirs))
+        extra_in_table = sorted(set(path_dirs) - set(actual_dirs))
+        extent_mismatches = sorted(
+            path for path in set(actual_dirs) & set(path_dirs)
+            if actual_dirs[path] != path_dirs[path]
+        )
+        if missing_from_table:
+            errors.append(f"directories missing from path table: {missing_from_table[:20]}")
+        if extra_in_table:
+            errors.append(f"path-table directories absent from walked tree: {extra_in_table[:20]}")
+        if extent_mismatches:
+            errors.append(f"directory extent mismatches: {extent_mismatches[:20]}")
+    expected_tables = {"type_l", "type_m"}
+    if path_locations["optional_type_l_lba"]:
+        expected_tables.add("optional_type_l")
+    if path_locations["optional_type_m_lba"]:
+        expected_tables.add("optional_type_m")
+    table_copies = [tables.get(name) for name in sorted(expected_tables)]
+    tables_match = (
+        expected_tables.issubset(tables)
+        and bool(table_copies)
+        and all(table == tables.get("type_l") for table in table_copies)
+    )
+    return {
+        "path_table_size_bytes": path_table_size,
+        "locations": path_locations,
+        "table_entry_counts": {k: len(v) for k, v in tables.items()},
+        "tables_parsed": sorted(tables),
+        "tables_match": tables_match,
+        "directory_tree_crosscheck": "passed" if primary and not any(
+            e.startswith(("directories missing", "path-table directories absent", "directory extent mismatches"))
+            for e in errors
+        ) else "failed_or_unavailable",
+        "error_count": len(errors),
+        "errors": errors,
+        "entries": resolved if primary else [],
+    }
+
+
+def check_extent_overlaps(entries: list[dict[str, Any]], root_directory: dict[str, Any],
+                          volume_blocks: int, max_findings: int = 100) -> dict[str, Any]:
+    """Detect out-of-volume extents and overlaps between directory/file records."""
+    ranges: list[dict[str, Any]] = [{
+        "path": "<ROOT>", "type": "directory", "start_lba": root_directory["extent_lba"],
+        "end_lba_exclusive": root_directory["extent_lba"] +
+            (root_directory["size_bytes"] + BLOCK_SIZE - 1) // BLOCK_SIZE,
+    }]
+    errors: list[str] = []
+    skipped_interleaved = 0
+    for entry in entries:
+        if entry.get("file_unit_size", 0) or entry.get("interleave_gap_size", 0):
+            skipped_interleaved += 1
+            continue
+        start = int(entry["extent_lba"])
+        ext_attr = int(entry.get("extended_attribute_length", 0))
+        size = int(entry["size_bytes"])
+        data_blocks = (size + BLOCK_SIZE - 1) // BLOCK_SIZE
+        end = start + ext_attr + data_blocks
+        if start < 0 or end > volume_blocks:
+            errors.append(f"{entry['path']}: extent [{start}, {end}) is outside volume [0, {volume_blocks})")
+        if end > start:
+            ranges.append({"path": entry["path"], "type": entry["type"], "start_lba": start,
+                           "end_lba_exclusive": end})
+    ranges.sort(key=lambda r: (r["start_lba"], r["end_lba_exclusive"], r["path"]))
+    overlaps: list[dict[str, Any]] = []
+    active: list[dict[str, Any]] = []
+    for current in ranges:
+        active = [old for old in active if old["end_lba_exclusive"] > current["start_lba"]]
+        for old in active:
+            overlap_start = max(old["start_lba"], current["start_lba"])
+            overlap_end = min(old["end_lba_exclusive"], current["end_lba_exclusive"])
+            if overlap_start < overlap_end:
+                if len(overlaps) < max_findings:
+                    overlaps.append({
+                        "first": old["path"], "second": current["path"],
+                        "start_lba": overlap_start, "end_lba_exclusive": overlap_end,
+                        "overlap_blocks": overlap_end - overlap_start,
+                    })
+                errors.append(f"extent overlap: {old['path']} and {current['path']} at [{overlap_start}, {overlap_end})")
+        active.append(current)
+    return {
+        "volume_blocks": volume_blocks,
+        "record_extent_count": len(ranges),
+        "out_of_volume_count": sum(1 for e in errors if "outside volume" in e),
+        "overlap_count": sum(1 for e in errors if "extent overlap:" in e),
+        "overlaps_truncated_to": max_findings,
+        "overlaps": overlaps,
+        "interleaved_records_skipped": skipped_interleaved,
+        "error_count": len(errors),
+        "errors": errors[:max_findings],
     }
 
 
@@ -327,6 +720,21 @@ def parse_iso(f: BinaryIO, total_sectors: int, max_entries: int, max_depth: int,
             if is_dir:
                 children.append((path, rec, depth + 1))
         stack.extend(reversed(children))
+    path_table_locations = {
+        "type_l_lba": int.from_bytes(pvd[140:144], "little"),
+        "optional_type_l_lba": int.from_bytes(pvd[144:148], "little"),
+        "type_m_lba": int.from_bytes(pvd[148:152], "big"),
+        "optional_type_m_lba": int.from_bytes(pvd[152:156], "big"),
+    }
+    path_table_report = check_path_tables(
+        f, volume_blocks, path_table_size, path_table_locations,
+        root_rec["extent_lba"], entries,
+    )
+    extent_report = check_extent_overlaps(
+        entries,
+        {"extent_lba": root_rec["extent_lba"], "size_bytes": root_rec["data_length"]},
+        volume_blocks,
+    )
     return {
         "volume_descriptor_lbas": descriptors,
         "volume_descriptor_terminator_lba": descriptor_end,
@@ -335,12 +743,7 @@ def parse_iso(f: BinaryIO, total_sectors: int, max_entries: int, max_depth: int,
         "volume_space_size_blocks": volume_blocks,
         "logical_block_size_bytes": logical_block_size,
         "path_table_size_bytes": path_table_size,
-        "path_table_locations": {
-            "type_l_lba": int.from_bytes(pvd[140:144], "little"),
-            "optional_type_l_lba": int.from_bytes(pvd[144:148], "little"),
-            "type_m_lba": int.from_bytes(pvd[148:152], "big"),
-            "optional_type_m_lba": int.from_bytes(pvd[152:156], "big"),
-        },
+        "path_table_locations": path_table_locations,
         "root_directory": {
             "extent_lba": root_rec["extent_lba"],
             "size_bytes": root_rec["data_length"],
@@ -353,6 +756,8 @@ def parse_iso(f: BinaryIO, total_sectors: int, max_entries: int, max_depth: int,
         "boot_config": boot_config,
         "elf_candidates": elf_candidates,
         "inventory_errors": errors,
+        "path_table_integrity": path_table_report,
+        "extent_integrity": extent_report,
     }
 
 
@@ -384,9 +789,11 @@ def main(argv: list[str] | None = None) -> int:
         with args.image.open("rb") as f:
             print(f"Scanning {total_sectors} raw sectors for header consistency...", file=sys.stderr)
             sector_report = check_sector_headers(f, total_sectors)
-            print("Reading ISO9660-style descriptors and inventorying file records...", file=sys.stderr)
+            print("Verifying EDC/ECC on Mode 2 Form 1 data sectors...", file=sys.stderr)
+            edc_ecc_report = check_sector_edc_ecc_native(args.image)
+            print("Reading ISO9660-style descriptors, path tables, extents and file records...", file=sys.stderr)
             iso_report = parse_iso(f, total_sectors, args.max_entries, args.max_depth, args.max_file_size)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, RuntimeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     report = {
@@ -394,11 +801,13 @@ def main(argv: list[str] | None = None) -> int:
         "image_size_bytes": image_size,
         "image_sha256": sha256_path(args.image),
         "sector_scan": sector_report,
+        "sector_edc_ecc": edc_ecc_report,
         "iso9660_style_inventory": iso_report,
         "limitations": [
-            "CD-ROM EDC/ECC checksums were not validated.",
+            "Mode 2 Form 1 data-sector EDC/P/Q checks are verified; non-data sectors are skipped and Mode 2 Form 2 sectors are reported as unsupported.",
             "A filesystem inventory does not establish media authenticity or regional identity.",
             "Multi-extent ISO files are flagged but not aggregated into one logical file.",
+            "Extent overlap checks cover the contiguous extents represented by directory records; interleaved records are skipped and reported.",
             "This tool inventories bytes and metadata; it does not execute disc code or decode game assets.",
         ],
     }
@@ -407,22 +816,37 @@ def main(argv: list[str] | None = None) -> int:
     args.json.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     with args.csv.open("w", newline="", encoding="utf-8") as out:
         fields = ["path", "name", "type", "extent_lba", "data_lba", "size_bytes", "flags_hex", "extended_attribute_length", "file_unit_size", "interleave_gap_size", "sha256", "hash_status", "notes"]
-        writer = csv.DictWriter(out, fieldnames=fields, extrasaction="ignore")
+        writer = csv.DictWriter(out, fieldnames=fields, extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         writer.writerows(iso_report["entries"])
     print(json.dumps({
         "image_sha256": report["image_sha256"],
         "sector_count": sector_report["sector_count"],
         "sector_header_findings": sector_report["finding_count"],
+        "edc_ecc_eligible_sectors": edc_ecc_report["eligible_data_sector_count"],
+        "edc_ecc_failures": edc_ecc_report["failure_count"],
+        "edc_ecc_unsupported_sector_types_present": edc_ecc_report["unsupported_sector_types_present"],
+        "edc_ecc_all_eligible_sectors_verified": edc_ecc_report["all_eligible_sectors_verified"],
         "system_identifier": iso_report["system_identifier"],
         "volume_blocks": iso_report["volume_space_size_blocks"],
         "file_count": iso_report["file_count"],
         "directory_count": iso_report["directory_count"],
+        "path_table_error_count": iso_report["path_table_integrity"]["error_count"],
+        "extent_overlap_count": iso_report["extent_integrity"]["overlap_count"],
+        "extent_error_count": iso_report["extent_integrity"]["error_count"],
         "elf_candidates": iso_report["elf_candidates"],
         "inventory_errors": len(iso_report["inventory_errors"]),
     }, indent=2))
-    # Sector-header anomalies and directory/hash errors are reported in the JSON.
-    return 0 if not sector_report["finding_count"] and not iso_report["inventory_errors"] else 3
+    # All enabled integrity gates contribute to the command's result code.
+    integrity_errors = (
+        sector_report["finding_count"]
+        + edc_ecc_report["failure_count"]
+        + int(edc_ecc_report["unsupported_sector_types_present"])
+        + len(iso_report["inventory_errors"])
+        + iso_report["path_table_integrity"]["error_count"]
+        + iso_report["extent_integrity"]["error_count"]
+    )
+    return 0 if integrity_errors == 0 else 3
 
 if __name__ == "__main__":
     raise SystemExit(main())
