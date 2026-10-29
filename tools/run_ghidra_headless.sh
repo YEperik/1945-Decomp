@@ -54,11 +54,20 @@ case "$OUTPUT_DIR" in
     exit 2
     ;;
 esac
+# Each analysis run uses a new directory; never overwrite previous projects or exports.
 mkdir -p -- "$OUTPUT_DIR"
-EXPORT_DIR="$OUTPUT_DIR/exports"
-PROJECT_DIR="$OUTPUT_DIR/project"
-LOG_DIR="$OUTPUT_DIR/logs"
-mkdir -p -- "$EXPORT_DIR" "$PROJECT_DIR" "$LOG_DIR"
+RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+RUN_DIR="$OUTPUT_DIR/run-$RUN_ID"
+if [[ -e "$RUN_DIR" ]]; then
+  echo "ERROR: unique Ghidra run directory already exists: $RUN_DIR" >&2
+  exit 2
+fi
+(umask 077 && mkdir -- "$RUN_DIR")
+EXPORT_DIR="$RUN_DIR/exports"
+DECOMP_DIR="$RUN_DIR/decompiled"
+PROJECT_DIR="$RUN_DIR/project"
+LOG_DIR="$RUN_DIR/logs"
+mkdir -p -- "$EXPORT_DIR" "$DECOMP_DIR" "$PROJECT_DIR" "$LOG_DIR"
 TMP_DIR="$(mktemp -d -t 1945-ghidra-XXXXXX)"
 trap 'rm -rf -- "$TMP_DIR"' EXIT
 
@@ -80,10 +89,10 @@ PY
 "$HEADLESS" "$PROJECT_DIR" "1945_SLES_51741" \
   -import "$TMP_DIR/boot.elf" \
   -processor "$LANGUAGE_ID" \
-  -overwrite \
   -scriptPath "$ROOT_DIR/ghidra_scripts" \
   -analysisTimeoutPerFile 900 \
   -postScript Export1945Evidence.java "$EXPORT_DIR" "$EXPECTED_ENTRY" \
+  -postScript Export1945Decompilation.java "$DECOMP_DIR" 30 \
   -log "$LOG_DIR/analyze.log" \
   -scriptlog "$LOG_DIR/script.log"
 
@@ -99,6 +108,18 @@ if ! grep -qx 'expected_entry_instruction_present=true' "$EXPORT_DIR/ghidra_meta
   echo "ERROR: Ghidra did not produce a decoded instruction at expected ELF entry $EXPECTED_ENTRY." >&2
   exit 5
 fi
+if [[ ! -s "$DECOMP_DIR/ghidra_decompile_manifest.csv" ]]; then
+  echo "ERROR: per-function decompilation manifest is missing or empty." >&2
+  exit 5
+fi
+if [[ ! -d "$DECOMP_DIR/functions" ]]; then
+  echo "ERROR: per-function pseudocode output directory is missing." >&2
+  exit 5
+fi
+PYTHONPATH="$ROOT_DIR/tools${PYTHONPATH:+:$PYTHONPATH}" python3 \
+  "$ROOT_DIR/tools/validate_ghidra_decompilation.py" \
+  "$DECOMP_DIR/ghidra_decompile_manifest.csv" "$DECOMP_DIR" \
+  --summary "$DECOMP_DIR/ghidra_decompile_summary.json"
 for csv_file in ghidra_functions.csv ghidra_call_references.csv ghidra_selected_disassembly.csv; do
   line_count="$(wc -l < "$EXPORT_DIR/$csv_file")"
   if (( line_count <= 1 )); then
@@ -106,5 +127,6 @@ for csv_file in ghidra_functions.csv ghidra_call_references.csv ghidra_selected_
     exit 5
   fi
 done
-printf 'Ghidra analysis outputs: %s\n' "$OUTPUT_DIR"
+printf 'Ghidra analysis outputs: %s\n' "$RUN_DIR"
+printf 'Function pseudocode: %s\n' "$DECOMP_DIR"
 printf 'Temporary ELF removed on exit; source disc image unchanged.\n'
