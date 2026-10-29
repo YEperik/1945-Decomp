@@ -117,7 +117,8 @@ void audio_engine_render(AudioEngine *engine, uint32_t event_mask,
     };
     size_t event_index;
     size_t frame;
-    if (output == NULL) {
+    if (output == NULL || frames > SIZE_MAX / sizeof(*output)) {
+        /* The caller's capacity is unknown, but the byte-size calculation must not wrap. */
         return;
     }
     if (engine == NULL) {
