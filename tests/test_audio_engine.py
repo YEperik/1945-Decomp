@@ -40,6 +40,13 @@ int main(void) {
     audio_engine_render(NULL, GAME_AUDIO_FIRE, pcm, 2048u);
     for (size_t i = 0; i < 2048u; ++i) assert(pcm[i] == 0);
     audio_engine_render(&engine, GAME_AUDIO_FIRE, NULL, 512u);
+
+    /* Reject impossible lengths before multiplying or touching a caller buffer. */
+    int16_t sentinels[2] = {123, -456};
+    audio_engine_render(NULL, GAME_AUDIO_FIRE, sentinels, SIZE_MAX);
+    assert(sentinels[0] == 123 && sentinels[1] == -456);
+    audio_engine_render(&engine, GAME_AUDIO_FIRE, sentinels, SIZE_MAX);
+    assert(sentinels[0] == 123 && sentinels[1] == -456);
     return 0;
 }
 '''
