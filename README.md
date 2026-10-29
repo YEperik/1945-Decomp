@@ -15,8 +15,6 @@ The Android launcher is `org.mkvium.port1945.game.GameActivity`, hosted by `Game
 - `app/src/main/cpp/game/tim_texture_renderer.cpp`: bounded GLES texture cache and textured-quad primitive, mock-tested but not yet wired into the gameplay renderer.
 - `.github/workflows/android-ci.yml`: push on all branches, manifest/repository hygiene checks, host regression tests, Android lint, debug APK assembly, and a 14-day artifact upload when run on GitHub Actions.
 
-The exact boundary and next gates are in [`MILESTONE_01_PROTOTYPE.md`](MILESTONE_01_PROTOTYPE.md).
-
 ## What is still missing for a genuine port
 
 - **Original renderer/assets:** the bounded TIM decoder exists and matches the Python reference for 297/297 local files, but decoded textures are not wired into the renderer. Sprite atlas/source rectangles, CLUT selection, original fonts, stage maps, animation tables, effects and scene composition remain unresolved.
