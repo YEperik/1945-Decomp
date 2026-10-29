@@ -11,6 +11,8 @@ namespace {
 GameWorld g_world{};
 AudioEngine g_audio{};
 std::atomic<std::uint32_t> g_pending_audio_events{0u};
+/* Lifecycle callbacks run on the UI thread; the game world belongs to the GL thread. */
+std::atomic<bool> g_lifecycle_pause_requested{false};
 bool g_game_initialized = false;
 
 void ensure_game_initialized()
@@ -27,6 +29,7 @@ Java_org_mkvium_port1945_game_GameBridge_nativeInitGame(JNIEnv *, jclass)
 {
     game_world_init(&g_world, 0x1945a11u);
     g_pending_audio_events.store(0u, std::memory_order_relaxed);
+    g_lifecycle_pause_requested.store(false, std::memory_order_relaxed);
     g_game_initialized = true;
 }
 
@@ -53,6 +56,10 @@ Java_org_mkvium_port1945_game_GameBridge_nativeFrame(JNIEnv *, jclass,
                                                       jboolean pause_pressed)
 {
     ensure_game_initialized();
+    /* Never mutate GameWorld from the Android UI/lifecycle thread. */
+    if (g_lifecycle_pause_requested.exchange(false, std::memory_order_acq_rel)) {
+        game_world_force_pause(&g_world);
+    }
     GameInput input{};
     input.move_x = static_cast<float>(move_x);
     input.move_y = static_cast<float>(move_y);
@@ -69,10 +76,11 @@ Java_org_mkvium_port1945_game_GameBridge_nativeFrame(JNIEnv *, jclass,
 extern "C" JNIEXPORT void JNICALL
 Java_org_mkvium_port1945_game_GameBridge_nativePauseForLifecycle(JNIEnv *, jclass)
 {
-    ensure_game_initialized();
-    game_world_force_pause(&g_world);
-    /* The GL thread has already been paused by GLSurfaceView; discard stale SFX
-       events so a sound queued just before backgrounding is not replayed on resume. */
+    /* Do not touch GameWorld here: this JNI method is called by the UI thread,
+       while nativeFrame owns the state on the GLSurfaceView GL thread. The request
+       is consumed at the start of the next nativeFrame (normally after resume). */
+    g_lifecycle_pause_requested.store(true, std::memory_order_release);
+    /* Discard stale SFX events so they are not replayed after resume. */
     g_pending_audio_events.store(0u, std::memory_order_release);
 }
 
