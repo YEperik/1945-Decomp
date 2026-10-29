@@ -1,4 +1,4 @@
-# 1945 Native Android Port — Evidence-led research + explicit prototype
+# 1945 Native Android Port 
 
 This repository now has two clearly separated parts: (1) reverse-engineering evidence collected from the supplied PAL PS2 image/listings, and (2) an **authored native gameplay/renderer/procedural-SFX prototype** used to exercise the Android runtime architecture. The prototype is **not yet a faithful port** and is not presented as original `1945 I & II` gameplay, art, or sound.
 
@@ -22,7 +22,6 @@ The exact boundary and next gates are in [`MILESTONE_01_PROTOTYPE.md`](MILESTONE
 - **Original renderer/assets:** the bounded TIM decoder exists and matches the Python reference for 297/297 local files, but decoded textures are not wired into the renderer. Sprite atlas/source rectangles, CLUT selection, original fonts, stage maps, animation tables, effects and scene composition remain unresolved.
 - **Original audio:** no original BGM, PSS demultiplexer/decoder, original sound-bank parser, or fidelity comparison. Current procedural tones are only runtime test SFX.
 - **Original gameplay:** stage scripts, exact enemy/projectile patterns, player/weapons, bosses, menu/progression, scoring/difficulty rules and game timing remain to be reconstructed from evidence or reference observations. The current simulation rules are invented prototype rules.
-- **Android proof:** this environment has no Android SDK/NDK, Gradle, emulator or ADB. The GitHub connector is authenticated as `MKvium`, not the requested `YEperik` owner, so no remote push or hosted run was attempted. The official Android Gradle/NDK build, lint result, APK install/launch, GLES driver behavior, AudioTrack playback/underruns, device input and frame performance are all still **NOT RUN** until the workflow executes on a GitHub runner and the APK is tested on Android.
 - **Reverse-engineering toolchain:** the Ghidra R5900-aware runner is prepared, but Ghidra and the Emotion Engine extension have not been run in this environment.
 
 ## Reverse-engineering baseline retained
@@ -43,18 +42,6 @@ pytest -q
 
 Tests compile and run the C prototype simulation/audio mixer, exercise fixed-step/state/collision/audio invariants, compile C++ renderer/JNI interfaces against small local API-contract stubs, compile Java source against minimal platform stubs, and validate manifest/Gradle/CMake/workflow wiring. These stubs do not replace the official Android SDK/NDK build or device tests.
 
-The official hosted build is configured in `.github/workflows/android-ci.yml`; it validates manifest metadata and repository hygiene, runs host tests, then runs `:app:lintDebug`, `:app:assembleDebug`, and uploads `app-debug.apk` as `1945-native-port-debug-apk` if all gates pass. Current local `pytest -q` is **86 passed**. No hosted workflow run or APK artifact is claimed yet. A native PC/desktop runtime is not implemented. See [`GITHUB_ACTIONS_SETUP.md`](GITHUB_ACTIONS_SETUP.md).
-
-## Key records
-
-- [`PROJECT_STATUS.md`](PROJECT_STATUS.md): accumulated engineering status and verification history.
-- [`ARCHITECTURE.md`](ARCHITECTURE.md): module boundaries and implementation status.
-- [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md): blockers and unresolved risks.
-- [`TEST_MATRIX.md`](TEST_MATRIX.md): test evidence and execution boundaries.
-- [`evidence/disc_inventory.json`](evidence/disc_inventory.json) and [`evidence/disc_file_manifest.csv`](evidence/disc_file_manifest.csv): image inventory/check results.
-- [`evidence/static_control_flow_report.md`](evidence/static_control_flow_report.md): conservative static-control-transfer index.
-- [`evidence/controller_input_disassembly_reconstruction.md`](evidence/controller_input_disassembly_reconstruction.md): controller input-state reconstruction from submitted listings.
-- [`evidence/prototype_host_validation.txt`](evidence/prototype_host_validation.txt): latest local build/test checks for this milestone, when generated.
 
 ## Runtime policy
 
