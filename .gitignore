@@ -42,3 +42,32 @@ __pycache__/
 *.iso
 *.elf
 *.gzf
+*.pss
+*.tim
+*.vag
+*.adx
+# Additional proprietary PS2 payloads observed in this release.
+*.irx
+*.sq
+*.hd
+*.bd
+*.gat
+*.img
+*.old
+*.new
+*.41
+
+# ISO9660 names often retain the ;1 version suffix, so plain *.tim/*.pss
+# patterns alone do not reliably exclude extracted originals.
+*.[tT][iI][mM];*
+*.[pP][sS][sS];*
+*.[bB][iI][nN];*
+*.[sS][qQ];*
+*.[iI][rR][xX];*
+*.[hH][dD];*
+*.[bB][dD];*
+*.[gG][aA][tT];*
+*.[iI][mM][gG];*
+*.[oO][lL][dD];*
+*.[nN][eE][wW];*
+*.[4][1];*
