@@ -141,6 +141,11 @@ def test_android_pause_edges_ignore_key_repeat_and_audio_writes_handle_partial_p
     lifecycle = bridge[bridge.index("Java_org_mkvium_port1945_game_GameBridge_nativePauseForLifecycle"):]
     lifecycle = lifecycle[:lifecycle.index("Java_org_mkvium_port1945_game_GameBridge_nativeInitAudio")]
     assert "g_pending_audio_events.store(0u, std::memory_order_release)" in lifecycle
+    # Lifecycle JNI is called on the UI thread; state mutation must be deferred to GL.
+    assert "g_lifecycle_pause_requested.store(true, std::memory_order_release)" in lifecycle
+    assert "game_world_force_pause(&g_world)" not in lifecycle
+    assert "g_lifecycle_pause_requested.exchange(false, std::memory_order_acq_rel)" in bridge
+    assert "game_world_force_pause(&g_world)" in bridge[bridge.index("Java_org_mkvium_port1945_game_GameBridge_nativeFrame"):]
 
 
 def test_renderer_reinitializes_names_for_a_new_egl_context_without_deleting_stale_ids() -> None:
