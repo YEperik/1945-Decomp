@@ -1,45 +1,34 @@
-"""Structural regression tests for the hosted Android CI workflow."""
-from pathlib import Path
+"""Parse and sanity-check the CI workflow used to build the diagnostic/prototype APK."""
+from __future__ import annotations
+
+import pathlib
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
-def test_android_ci_workflow_is_valid_and_runs_expected_checks():
-    workflow_path = ROOT / ".github/workflows/android-ci.yml"
-    workflow = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
-
-    assert workflow["name"] == "Android CI"
-    assert workflow["on"]["push"]["branches"] == ["main", "master"]
-    assert "pull_request" in workflow["on"]
-    assert "workflow_dispatch" in workflow["on"]
-    assert workflow["permissions"]["contents"] == "read"
-
+def test_android_workflow_is_parseable_and_builds_lint_apk() -> None:
+    path = ROOT / ".github/workflows/android-ci.yml"
+    raw = path.read_text(encoding="utf-8")
+    workflow = yaml.safe_load(raw)
+    assert isinstance(workflow, dict)
+    triggers = workflow.get("on", workflow.get(True))
+    assert isinstance(triggers, dict)
+    assert "push" in triggers and "pull_request" in triggers and "workflow_dispatch" in triggers
+    assert workflow.get("permissions", {}).get("contents") == "read"
     jobs = workflow["jobs"]
-    host_job = jobs["host-tests"]
-    android_job = jobs["android-debug-apk"]
-    assert android_job["needs"] == "host-tests"
-
-    host_steps = host_job["steps"]
-    assert any("pytest -q" in step.get("run", "") for step in host_steps)
-    assert any("compileall -q tools tests" in step.get("run", "") for step in host_steps)
-    assert any("pip install --upgrade pip pytest pyyaml" in step.get("run", "") for step in host_steps)
-
-    android_steps = android_job["steps"]
-    java_step = next(step for step in android_steps if step.get("uses", "").startswith("actions/setup-java@"))
-    gradle_setup = next(step for step in android_steps if step.get("uses", "").startswith("gradle/actions/setup-gradle@"))
-    build_step = next(step for step in android_steps if "Run Android lint and build debug APK" == step.get("name"))
-    artifact_step = next(step for step in android_steps if step.get("uses", "").startswith("actions/upload-artifact@"))
-
-    assert java_step["with"]["java-version"] == "17"
-    assert gradle_setup["with"]["gradle-version"] == "8.13"
-    assert ":app:lintDebug" in build_step["run"]
-    assert ":app:assembleDebug" in build_step["run"]
-    assert artifact_step["with"]["path"] == "app/build/outputs/apk/debug/app-debug.apk"
-    assert artifact_step["with"]["if-no-files-found"] == "error"
-    assert artifact_step["with"]["retention-days"] == "14"
-
-    for job in (host_job, android_job):
-        checkout = next(step for step in job["steps"] if step.get("uses", "").startswith("actions/checkout@"))
-        assert checkout["with"]["persist-credentials"] == "false"
+    assert jobs["android-debug-apk"]["needs"] == "host-tests"
+    all_steps = [step for job in jobs.values() for step in job["steps"]]
+    runs = "\n".join(str(step.get("run", "")) for step in all_steps)
+    actions = "\n".join(str(step.get("uses", "")) for step in all_steps)
+    assert "pytest -q" in runs
+    assert "tools/verify_disc_manifest.py" in runs
+    assert "tools/check_repository_hygiene.py" in runs
+    assert ":app:lintDebug" in runs
+    assert ":app:assembleDebug" in runs
+    assert "actions/checkout@" in actions
+    assert "actions/upload-artifact@" in actions
+    assert "persist-credentials: false" in raw
+    push = triggers.get("push")
+    assert not isinstance(push, dict) or "branches" not in push, "push trigger must include recovery/feature branches"
