@@ -3,8 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "org.YEperik-1945-Decomp.port1945"
+    namespace = "org.YEperik.port1945"
     compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         applicationId = "org.YEperik.port1945"
