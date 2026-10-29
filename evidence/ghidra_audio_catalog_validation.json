@@ -1,0 +1,77 @@
+{
+  "bgm_boss_callback_table": [
+    {
+      "source_interpretation": "function pointer used by BGM_BOSS command path; target 3 also used directly by stop_bgm path",
+      "table_address": "0x001DFDD0",
+      "table_index": 0,
+      "target_address": "0x00192490",
+      "target_symbol": ".text:FUN_00192490"
+    },
+    {
+      "source_interpretation": "function pointer used by BGM_BOSS command path; target 3 also used directly by stop_bgm path",
+      "table_address": "0x001DFDD4",
+      "table_index": 1,
+      "target_address": "0x001924C0",
+      "target_symbol": ""
+    },
+    {
+      "source_interpretation": "function pointer used by BGM_BOSS command path; target 3 also used directly by stop_bgm path",
+      "table_address": "0x001DFDD8",
+      "table_index": 2,
+      "target_address": "0x001924F0",
+      "target_symbol": ""
+    },
+    {
+      "source_interpretation": "function pointer used by BGM_BOSS command path; target 3 also used directly by stop_bgm path",
+      "table_address": "0x001DFDDC",
+      "table_index": 3,
+      "target_address": "0x00192520",
+      "target_symbol": ".text:FUN_00192520"
+    }
+  ],
+  "candidate_container_path": "DATA/SND/SNDCOM.BIN;1",
+  "candidate_container_present_in_iso_manifest": true,
+  "input_sources": {
+    "disc_manifest": {
+      "file_name": "disc_file_manifest.csv",
+      "sha256": "a1d9d7fb54fbbecd284920f9817ad2cb0195894d948879d2b439e2d3bac39c22"
+    },
+    "resource_listing": {
+      "file_name": "0x0030C0B0\u20130x0030C140.txt",
+      "sha256": "3a37fd5ccae75e8c1c5d47c1480023b8229880aec11422cf72f7c8d959c1a2b9"
+    },
+    "sequence_listing": {
+      "file_name": "0x001DFCC8\u20130x001DFE60.txt",
+      "sha256": "7d7fcd64f5a9b63ccff51f4a1985c36517d33ba785c2b883dab5e270146a8300"
+    },
+    "suffix_listing": {
+      "file_name": "0x003366D0\u20130x003366F0.txt",
+      "sha256": "a0e73356cc9e4bc65998b33db204aeffbd343c7b940f20da5a4aeff6531de5c8"
+    }
+  },
+  "iso_manifest_file_count": 659,
+  "iso_version_suffix_at_0x003366d8": ";1",
+  "logical_resource_group_count": 61,
+  "logical_resource_pointer_count": 183,
+  "physical_path_interpretation": "logical keys do not match standalone ISO records; DATA/SND/SNDCOM.BIN is a candidate container, but the exact internal-container relationship still requires loader-path confirmation",
+  "root_audio_path_table_slots": 30,
+  "root_audio_paths_present_in_iso_manifest": 29,
+  "schema_version": 1,
+  "sequence_selector_table_slots": 22,
+  "summary": {
+    "duplicate_logical_resource_groups": [
+      1,
+      60
+    ],
+    "full_sq_hd_bd_triplets_present": 16,
+    "full_triplets_with_missing_hd_or_bd": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "resource_groups_with_physical_standalone_iso_match": 0,
+    "sequence_sq_paths_missing_or_placeholder": 2,
+    "sequence_sq_paths_present": 20
+  }
+}

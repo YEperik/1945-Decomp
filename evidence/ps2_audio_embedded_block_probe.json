@@ -1,0 +1,612 @@
+{
+  "input_count": 6,
+  "reports": [
+    {
+      "compact_directory_table_candidate": {
+        "detected": true,
+        "detection_rule": "count in 1..64; first target equals 4 + count*8; all targets in bounds and nondecreasing",
+        "directory_size_candidate_bytes": 60,
+        "entries": [
+          {
+            "index": 0,
+            "recognized_marker_at_target": "pQES",
+            "tag_ascii_if_byte": "1",
+            "tag_u32_hex": "0x00000031",
+            "target_offset_hex": "0x3C"
+          },
+          {
+            "index": 1,
+            "recognized_marker_at_target": "pBAV",
+            "tag_ascii_if_byte": "8",
+            "tag_u32_hex": "0x00000038",
+            "target_offset_hex": "0x3D8"
+          },
+          {
+            "index": 2,
+            "recognized_marker_at_target": null,
+            "tag_ascii_if_byte": "9",
+            "tag_u32_hex": "0x00000039",
+            "target_offset_hex": "0x31F8"
+          },
+          {
+            "index": 3,
+            "recognized_marker_at_target": "pBAV",
+            "tag_ascii_if_byte": ":",
+            "tag_u32_hex": "0x0000003A",
+            "target_offset_hex": "0x1C7A8"
+          },
+          {
+            "index": 4,
+            "recognized_marker_at_target": null,
+            "tag_ascii_if_byte": ";",
+            "tag_u32_hex": "0x0000003B",
+            "target_offset_hex": "0x239C8"
+          },
+          {
+            "index": 5,
+            "recognized_marker_at_target": "pQES",
+            "tag_ascii_if_byte": "0",
+            "tag_u32_hex": "0x00000030",
+            "target_offset_hex": "0x5A7D8"
+          },
+          {
+            "index": 6,
+            "recognized_marker_at_target": "pQES",
+            "tag_ascii_if_byte": "2",
+            "tag_u32_hex": "0x00000032",
+            "target_offset_hex": "0x5C012"
+          }
+        ],
+        "entry_count_candidate": 7,
+        "layout_hypothesis": "LE32 entry_count followed by entry_count (LE32 target_offset, LE32 tag) pairs"
+      },
+      "context_string_hits": {
+        "BGMAP   OBJDT": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "CHECKSUMSEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "PALETTE BGMAPTBL": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "RECTDT  SEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "expected_sha256": "9fbaa078c94c1715234d0fae142a739a592bcd194066fbd9ccca2856892e2c29",
+      "expected_sha256_matches": true,
+      "input_name": "SNDCOM",
+      "interpretation_limits": [
+        "pQES and BGMAP are signature hits, not proof of independent object boundaries",
+        "pBAV +0x0C is reported as a candidate length field based on observed boundaries, not a finalized format specification",
+        "no resource names are inferred from marker hits alone",
+        "input bytes are read only and are never copied to the output report"
+      ],
+      "marker_counts_and_offsets": {
+        "BGMAP": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "SCEI": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pBAV": {
+          "count_observed": 2,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x3D8",
+            "0x1C7A8"
+          ]
+        },
+        "pQES": {
+          "count_observed": 3,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x3C",
+            "0x5A7D8",
+            "0x5C012"
+          ]
+        }
+      },
+      "pBAV_candidate_headers": [
+        {
+          "candidate_end_offset_hex": "0x1C7A8",
+          "candidate_size_field_offset_hex": "0x3E4",
+          "candidate_size_in_bounds": true,
+          "candidate_size_u32": 115664,
+          "flags_candidate_u32": 0,
+          "gap_to_next_recognized_marker_bytes": 0,
+          "header_complete": true,
+          "interpretation": "candidate size only; format field semantics require loader or format confirmation",
+          "next_recognized_marker_at_or_after_candidate_end": {
+            "offset_hex": "0x1C7A8",
+            "signature": "pBAV"
+          },
+          "offset_hex": "0x3D8",
+          "version_candidate_u32": 7
+        },
+        {
+          "candidate_end_offset_hex": "0x5A7D8",
+          "candidate_size_field_offset_hex": "0x1C7B4",
+          "candidate_size_in_bounds": true,
+          "candidate_size_u32": 254000,
+          "flags_candidate_u32": 0,
+          "gap_to_next_recognized_marker_bytes": 0,
+          "header_complete": true,
+          "interpretation": "candidate size only; format field semantics require loader or format confirmation",
+          "next_recognized_marker_at_or_after_candidate_end": {
+            "offset_hex": "0x5A7D8",
+            "signature": "pQES"
+          },
+          "offset_hex": "0x1C7A8",
+          "version_candidate_u32": 7
+        }
+      ],
+      "schema_version": 1,
+      "sha256": "9fbaa078c94c1715234d0fae142a739a592bcd194066fbd9ccca2856892e2c29",
+      "size_bytes": 381542
+    },
+    {
+      "compact_directory_table_candidate": {
+        "detected": false,
+        "detection_rule": "count in 1..64; first target equals 4 + count*8; all targets in bounds and nondecreasing",
+        "directory_size_candidate_bytes": 28,
+        "entries": [],
+        "entry_count_candidate": 3,
+        "layout_hypothesis": "LE32 entry_count followed by entry_count (LE32 target_offset, LE32 tag) pairs"
+      },
+      "context_string_hits": {
+        "BGMAP   OBJDT": {
+          "count_observed": 1,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x6E1810"
+          ]
+        },
+        "CHECKSUMSEQUENCE": {
+          "count_observed": 5,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x713770",
+            "0x961F58",
+            "0xCAEF70",
+            "0x17D9F58",
+            "0x2315758"
+          ]
+        },
+        "PALETTE BGMAPTBL": {
+          "count_observed": 5,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x70E880",
+            "0x95D080",
+            "0xCAA080",
+            "0x17D5080",
+            "0x2310880"
+          ]
+        },
+        "RECTDT  SEQUENCE": {
+          "count_observed": 20,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x114230",
+            "0x56A1C0",
+            "0x5729C0",
+            "0x57B1C0",
+            "0x5F75C8",
+            "0x62B0B0",
+            "0x6AD6E0",
+            "0x6E18B0",
+            "0xC25088",
+            "0xC25888",
+            "0xC75E50",
+            "0x16B74D8",
+            "0x175B888",
+            "0x175C088",
+            "0x17A08E8",
+            "0x21F2CC8",
+            "0x2297088",
+            "0x2297888",
+            "0x22DC0E8",
+            "0x2D2C4C8"
+          ]
+        }
+      },
+      "expected_sha256": "18bb4d08297be709615eb31781abe27569b0550fa8a01a664de524f95be722b4",
+      "expected_sha256_matches": true,
+      "input_name": "UBF",
+      "interpretation_limits": [
+        "pQES and BGMAP are signature hits, not proof of independent object boundaries",
+        "pBAV +0x0C is reported as a candidate length field based on observed boundaries, not a finalized format specification",
+        "no resource names are inferred from marker hits alone",
+        "input bytes are read only and are never copied to the output report"
+      ],
+      "marker_counts_and_offsets": {
+        "BGMAP": {
+          "count_observed": 41,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x6E1810",
+            "0x70E888",
+            "0x70E8A8",
+            "0x724010",
+            "0x7CF010",
+            "0x8F2010",
+            "0x95D088",
+            "0x95D0A8",
+            "0x972810",
+            "0xA1D810",
+            "0xB41810",
+            "0xCAA088",
+            "0xCAA0A8",
+            "0xD29010",
+            "0xE48010",
+            "0xF83010",
+            "0x10D2010",
+            "0x122B010",
+            "0x1392010",
+            "0x1528810",
+            "0x1679010",
+            "0x17D5088",
+            "0x17D50A8",
+            "0x1854010",
+            "0x1975810",
+            "0x1AB3810",
+            "0x1C04810",
+            "0x1D60010",
+            "0x1EC9010",
+            "0x2061810",
+            "0x21B1810",
+            "0x2310888",
+            "0x23108A8",
+            "0x238F810",
+            "0x24B1010",
+            "0x25EF010",
+            "0x2740010",
+            "0x289B810",
+            "0x2A04010",
+            "0x2B9C810",
+            "0x2CEC810"
+          ]
+        },
+        "SCEI": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pBAV": {
+          "count_observed": 1,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x2000"
+          ]
+        },
+        "pQES": {
+          "count_observed": 17,
+          "offset_list_truncated": false,
+          "offsets_hex": [
+            "0x84000",
+            "0x85000",
+            "0x87000",
+            "0x8A000",
+            "0x8D000",
+            "0x8F800",
+            "0x92000",
+            "0x94800",
+            "0x96800",
+            "0x98000",
+            "0x9A800",
+            "0x9C800",
+            "0x9E800",
+            "0x9F000",
+            "0x9F800",
+            "0xA0000",
+            "0xA4000"
+          ]
+        }
+      },
+      "pBAV_candidate_headers": [
+        {
+          "candidate_end_offset_hex": "0x83BB0",
+          "candidate_size_field_offset_hex": "0x200C",
+          "candidate_size_in_bounds": true,
+          "candidate_size_u32": 531376,
+          "flags_candidate_u32": 0,
+          "gap_to_next_recognized_marker_bytes": 1104,
+          "header_complete": true,
+          "interpretation": "candidate size only; format field semantics require loader or format confirmation",
+          "next_recognized_marker_at_or_after_candidate_end": {
+            "offset_hex": "0x84000",
+            "signature": "pQES"
+          },
+          "offset_hex": "0x2000",
+          "version_candidate_u32": 7
+        }
+      ],
+      "schema_version": 1,
+      "sha256": "18bb4d08297be709615eb31781abe27569b0550fa8a01a664de524f95be722b4",
+      "size_bytes": 47472640
+    },
+    {
+      "compact_directory_table_candidate": {
+        "detected": false,
+        "detection_rule": "count in 1..64; first target equals 4 + count*8; all targets in bounds and nondecreasing",
+        "directory_size_candidate_bytes": null,
+        "entries": [],
+        "entry_count_candidate": null,
+        "layout_hypothesis": "LE32 entry_count followed by entry_count (LE32 target_offset, LE32 tag) pairs"
+      },
+      "context_string_hits": {
+        "BGMAP   OBJDT": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "CHECKSUMSEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "PALETTE BGMAPTBL": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "RECTDT  SEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "expected_sha256": "a866c0d5af295684f74cce37dfef789e40e62c00c78ccb060544606c1e010106",
+      "expected_sha256_matches": true,
+      "input_name": "UBF_P",
+      "interpretation_limits": [
+        "pQES and BGMAP are signature hits, not proof of independent object boundaries",
+        "pBAV +0x0C is reported as a candidate length field based on observed boundaries, not a finalized format specification",
+        "no resource names are inferred from marker hits alone",
+        "input bytes are read only and are never copied to the output report"
+      ],
+      "marker_counts_and_offsets": {
+        "BGMAP": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "SCEI": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pBAV": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pQES": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "pBAV_candidate_headers": [],
+      "schema_version": 1,
+      "sha256": "a866c0d5af295684f74cce37dfef789e40e62c00c78ccb060544606c1e010106",
+      "size_bytes": 149504
+    },
+    {
+      "compact_directory_table_candidate": {
+        "detected": false,
+        "detection_rule": "count in 1..64; first target equals 4 + count*8; all targets in bounds and nondecreasing",
+        "directory_size_candidate_bytes": null,
+        "entries": [],
+        "entry_count_candidate": null,
+        "layout_hypothesis": "LE32 entry_count followed by entry_count (LE32 target_offset, LE32 tag) pairs"
+      },
+      "context_string_hits": {
+        "BGMAP   OBJDT": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "CHECKSUMSEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "PALETTE BGMAPTBL": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "RECTDT  SEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "expected_sha256": "2ed786bafc09afb210982723898f0613e53e9ac82875d4d561e8de0b6db94a3f",
+      "expected_sha256_matches": true,
+      "input_name": "SEQDAT_E",
+      "interpretation_limits": [
+        "pQES and BGMAP are signature hits, not proof of independent object boundaries",
+        "pBAV +0x0C is reported as a candidate length field based on observed boundaries, not a finalized format specification",
+        "no resource names are inferred from marker hits alone",
+        "input bytes are read only and are never copied to the output report"
+      ],
+      "marker_counts_and_offsets": {
+        "BGMAP": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "SCEI": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pBAV": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pQES": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "pBAV_candidate_headers": [],
+      "schema_version": 1,
+      "sha256": "2ed786bafc09afb210982723898f0613e53e9ac82875d4d561e8de0b6db94a3f",
+      "size_bytes": 1152540
+    },
+    {
+      "compact_directory_table_candidate": {
+        "detected": false,
+        "detection_rule": "count in 1..64; first target equals 4 + count*8; all targets in bounds and nondecreasing",
+        "directory_size_candidate_bytes": null,
+        "entries": [],
+        "entry_count_candidate": null,
+        "layout_hypothesis": "LE32 entry_count followed by entry_count (LE32 target_offset, LE32 tag) pairs"
+      },
+      "context_string_hits": {
+        "BGMAP   OBJDT": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "CHECKSUMSEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "PALETTE BGMAPTBL": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "RECTDT  SEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "expected_sha256": "d71dd150c24617072ea0954d6c4a98b6da931a76798ab1c1da7c258c80fc5066",
+      "expected_sha256_matches": true,
+      "input_name": "SEQDAT_J",
+      "interpretation_limits": [
+        "pQES and BGMAP are signature hits, not proof of independent object boundaries",
+        "pBAV +0x0C is reported as a candidate length field based on observed boundaries, not a finalized format specification",
+        "no resource names are inferred from marker hits alone",
+        "input bytes are read only and are never copied to the output report"
+      ],
+      "marker_counts_and_offsets": {
+        "BGMAP": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "SCEI": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pBAV": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pQES": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "pBAV_candidate_headers": [],
+      "schema_version": 1,
+      "sha256": "d71dd150c24617072ea0954d6c4a98b6da931a76798ab1c1da7c258c80fc5066",
+      "size_bytes": 1152576
+    },
+    {
+      "compact_directory_table_candidate": {
+        "detected": false,
+        "detection_rule": "count in 1..64; first target equals 4 + count*8; all targets in bounds and nondecreasing",
+        "directory_size_candidate_bytes": null,
+        "entries": [],
+        "entry_count_candidate": null,
+        "layout_hypothesis": "LE32 entry_count followed by entry_count (LE32 target_offset, LE32 tag) pairs"
+      },
+      "context_string_hits": {
+        "BGMAP   OBJDT": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "CHECKSUMSEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "PALETTE BGMAPTBL": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "RECTDT  SEQUENCE": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "expected_sha256": "8cf79dd402498ae045a8c59c499098581dc879f46d6136c7cefc74412c913bea",
+      "expected_sha256_matches": true,
+      "input_name": "SEQDAT_K",
+      "interpretation_limits": [
+        "pQES and BGMAP are signature hits, not proof of independent object boundaries",
+        "pBAV +0x0C is reported as a candidate length field based on observed boundaries, not a finalized format specification",
+        "no resource names are inferred from marker hits alone",
+        "input bytes are read only and are never copied to the output report"
+      ],
+      "marker_counts_and_offsets": {
+        "BGMAP": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "SCEI": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pBAV": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        },
+        "pQES": {
+          "count_observed": 0,
+          "offset_list_truncated": false,
+          "offsets_hex": []
+        }
+      },
+      "pBAV_candidate_headers": [],
+      "schema_version": 1,
+      "sha256": "8cf79dd402498ae045a8c59c499098581dc879f46d6136c7cefc74412c913bea",
+      "size_bytes": 1152540
+    }
+  ],
+  "schema_version": 1
+}

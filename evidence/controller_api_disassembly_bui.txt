@@ -1,0 +1,308 @@
+<A NAME="001b43b0"></A>                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_001b43b0()
+                                                          ;XREF[8]:     <A HREF="#001b44a8">001b44a8(c)</A>,<A HREF="#001b4518">001b4518(c)</A>,<A HREF="#001b45d4">001b45d4(c)</A>,<A HREF="#001b4630">001b4630(c)</A>,
+                                                          ;             <A HREF="#001b46c4">001b46c4(c)</A>,<A HREF="#001b4904">001b4904(c)</A>,<A HREF="#001b4acc">001b4acc(c)</A>,<A HREF="#001b4c80">001b4c80(c)</A>
+.text:001b43b0  1c000224        li          v0,0x1c                                 
+<A NAME="001b43b4"></A>.text:001b43b4  70000324        li          v1,0x70                                 
+<A NAME="001b43b8"></A>.text:001b43b8  1828a200        mult        a1,a1,v0                                
+<A NAME="001b43bc"></A>.text:001b43bc  18208370        mult1       a0,a0,v1                                
+<A NAME="001b43c0"></A>.text:001b43c0  e0ffbd27        addiu       sp,sp,-0x20                             
+<A NAME="001b43c4"></A>.text:001b43c4  a300023c        lui         v0,0xa3                                 
+<A NAME="001b43c8"></A>.text:001b43c8  1000bfff        sd          ra,0x10(sp)                             
+<A NAME="001b43cc"></A>.text:001b43cc  10f84224        addiu       v0,v0,-0x7f0                            
+<A NAME="001b43d0"></A>.text:001b43d0  0000b0ff        sd          s0,0x0(sp)                              
+<A NAME="001b43d4"></A>.text:001b43d4  2128a400        addu        a1,a1,a0                                
+<A NAME="001b43d8"></A>.text:001b43d8  2128a200        addu        a1,a1,v0                                
+<A NAME="001b43dc"></A>.text:001b43dc  0000b08c        lw          s0,<A HREF="#00a2f810">0x0(a1)=>.bss:DAT_00a2f810</A>           ;= ??
+<A NAME="001b43e0"></A>.text:001b43e0  2d200002        move        a0,s0                                   
+<A NAME="001b43e4"></A>.text:001b43e4  f6d8060c        jal         <A HREF="#001b63d8">FUN_001b63d8</A>                            ;undefined FUN_001b63d8()
+<A NAME="001b43e8"></A>.text:001b43e8  00010526        _addiu      a1,s0,0x100                             
+<A NAME="001b43ec"></A>.text:001b43ec  5800028e        lw          v0,0x58(s0)                             
+<A NAME="001b43f0"></A>.text:001b43f0  d800038e        lw          v1,0xd8(s0)                             
+<A NAME="001b43f4"></A>.text:001b43f4  1000bfdf        ld          ra,0x10(sp)                             
+<A NAME="001b43f8"></A>.text:001b43f8  2a104300        slt         v0,v0,v1                                
+<A NAME="001b43fc"></A>.text:001b43fc  c0110200        sll         v0,v0,0x7                               
+<A NAME="001b4400"></A>.text:001b4400  21100202        addu        v0,s0,v0                                
+<A NAME="001b4404"></A>.text:001b4404  0000b0df        ld          s0,0x0(sp)                              
+<A NAME="001b4408"></A>.text:001b4408  0800e003        jr          ra                                      
+<A NAME="001b440c"></A>.text:001b440c  2000bd27        _addiu      sp,sp,0x20                              
+<A NAME="001b4410"></A>.text:001b4410  2d              ??          2Dh    -                                ;?  ->  0080302d
+<A NAME="001b4411"></A>.text:001b4411  30              ??          30h    0                                
+<A NAME="001b4412"></A>.text:001b4412  80              ??          80h                                     
+<A NAME="001b4413"></A>.text:001b4413  00              ??          00h                                     
+<A NAME="001b4414"></A>.text:001b4414  70              ??          70h    p                                
+<A NAME="001b4415"></A>.text:001b4415  00              ??          00h                                     
+<A NAME="001b4416"></A>.text:001b4416  03              ??          03h                                     
+<A NAME="001b4417"></A>.text:001b4417  24              ??          24h    $                                
+<A NAME="001b4418"></A>.text:001b4418  1c              ??          1Ch                                     
+<A NAME="001b4419"></A>.text:001b4419  00              ??          00h                                     
+<A NAME="001b441a"></A>.text:001b441a  04              ??          04h                                     
+<A NAME="001b441b"></A>.text:001b441b  24              ??          24h    $                                
+<A NAME="001b441c"></A>.text:001b441c  18              ??          18h                                     
+<A NAME="001b441d"></A>.text:001b441d  18              ??          18h                                     
+<A NAME="001b441e"></A>.text:001b441e  c3              ??          C3h                                     
+<A NAME="001b441f"></A>.text:001b441f  70              ??          70h    p                                
+<A NAME="001b4420"></A>.text:001b4420  18              ??          18h                                     
+<A NAME="001b4421"></A>.text:001b4421  20              ??          20h                                     
+<A NAME="001b4422"></A>.text:001b4422  a4              ??          A4h                                     
+<A NAME="001b4423"></A>.text:001b4423  00              ??          00h                                     
+<A NAME="001b4424"></A>.text:001b4424  f0              ??          F0h                                     
+<A NAME="001b4425"></A>.text:001b4425  ff              ??          FFh                                     
+<A NAME="001b4426"></A>.text:001b4426  bd              ??          BDh                                     
+<A NAME="001b4427"></A>.text:001b4427  27              ??          27h    '                                
+<A NAME="001b4428"></A>.text:001b4428  a3              ??          A3h                                     
+<A NAME="001b4429"></A>.text:001b4429  00              ??          00h                                     
+<A NAME="001b442a"></A>.text:001b442a  02              ??          02h                                     
+<A NAME="001b442b"></A>.text:001b442b  3c              ??          3Ch    <                                
+<A NAME="001b442c"></A>.text:001b442c  00              ??          00h                                     
+<A NAME="001b442d"></A>.text:001b442d  00              ??          00h                                     
+<A NAME="001b442e"></A>.text:001b442e  bf              ??          BFh                                     
+<A NAME="001b442f"></A>.text:001b442f  ff              ??          FFh                                     
+<A NAME="001b4430"></A>.text:001b4430  10              ??          10h                                     
+<A NAME="001b4431"></A>.text:001b4431  f8              ??          F8h                                     
+<A NAME="001b4432"></A>.text:001b4432  42              ??          42h    B                                
+<A NAME="001b4433"></A>.text:001b4433  24              ??          24h    $                                
+<A NAME="001b4434"></A>.text:001b4434  21              ??          21h    !                                ;?  ->  00832021
+<A NAME="001b4435"></A>.text:001b4435  20              ??          20h                                     
+<A NAME="001b4436"></A>.text:001b4436  83              ??          83h                                     
+<A NAME="001b4437"></A>.text:001b4437  00              ??          00h                                     
+<A NAME="001b4438"></A>.text:001b4438  21              ??          21h    !                                ;?  ->  00441021
+<A NAME="001b4439"></A>.text:001b4439  10              ??          10h                                     
+<A NAME="001b443a"></A>.text:001b443a  44              ??          44h    D                                
+<A NAME="001b443b"></A>.text:001b443b  00              ??          00h                                     
+<A NAME="001b443c"></A>.text:001b443c  10              ??          10h                                     
+<A NAME="001b443d"></A>.text:001b443d  00              ??          00h                                     
+<A NAME="001b443e"></A>.text:001b443e  43              ??          43h    C                                
+<A NAME="001b443f"></A>.text:001b443f  8c              ??          8Ch                                     
+<A NAME="001b4440"></A>.text:001b4440  04              ??          04h                                     
+<A NAME="001b4441"></A>.text:001b4441  00              ??          00h                                     
+<A NAME="001b4442"></A>.text:001b4442  60              ??          60h    `                                
+<A NAME="001b4443"></A>.text:001b4443  10              ??          10h                                     
+<A NAME="001b4444"></A>.text:001b4444  2d              ??          2Dh    -                                
+<A NAME="001b4445"></A>.text:001b4445  10              ??          10h                                     
+<A NAME="001b4446"></A>.text:001b4446  00              ??          00h                                     
+<A NAME="001b4447"></A>.text:001b4447  00              ??          00h                                     
+<A NAME="001b4448"></A>.text:001b4448  ec              ??          ECh                                     
+<A NAME="001b4449"></A>.text:001b4449  d0              ??          D0h                                     
+<A NAME="001b444a"></A>.text:001b444a  06              ??          06h                                     
+<A NAME="001b444b"></A>.text:001b444b  0c              ??          0Ch                                     
+<A NAME="001b444c"></A>.text:001b444c  2d              ??          2Dh    -                                
+<A NAME="001b444d"></A>.text:001b444d  20              ??          20h                                     
+<A NAME="001b444e"></A>.text:001b444e  c0              ??          C0h                                     
+<A NAME="001b444f"></A>.text:001b444f  00              ??          00h                                     
+<A NAME="001b4450"></A>.text:001b4450  58              ??          58h    X                                
+<A NAME="001b4451"></A>.text:001b4451  00              ??          00h                                     
+<A NAME="001b4452"></A>.text:001b4452  42              ??          42h    B                                
+<A NAME="001b4453"></A>.text:001b4453  8c              ??          8Ch                                     
+<A NAME="001b4454"></A>.text:001b4454  00              ??          00h                                     
+<A NAME="001b4455"></A>.text:001b4455  00              ??          00h                                     
+<A NAME="001b4456"></A>.text:001b4456  bf              ??          BFh                                     
+<A NAME="001b4457"></A>.text:001b4457  df              ??          DFh                                     
+<A NAME="001b4458"></A>.text:001b4458  08              ??          08h                                     
+<A NAME="001b4459"></A>.text:001b4459  00              ??          00h                                     
+<A NAME="001b445a"></A>.text:001b445a  e0              ??          E0h                                     
+<A NAME="001b445b"></A>.text:001b445b  03              ??          03h                                     
+<A NAME="001b445c"></A>.text:001b445c  10              ??          10h                                     
+<A NAME="001b445d"></A>.text:001b445d  00              ??          00h                                     
+<A NAME="001b445e"></A>.text:001b445e  bd              ??          BDh                                     
+<A NAME="001b445f"></A>.text:001b445f  27              ??          27h    '                                
+<A NAME="001b4460"></A>                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_001b4460()
+                                                          ;XREF[1]:     <A HREF="#00187a60">00187a60(c)</A>
+.text:001b4460  2d388000        move        a3,a0                                   
+<A NAME="001b4464"></A>.text:001b4464  70000324        li          v1,0x70                                 
+<A NAME="001b4468"></A>.text:001b4468  1c000424        li          a0,0x1c                                 
+<A NAME="001b446c"></A>.text:001b446c  1818e370        mult1       v1,a3,v1                                
+<A NAME="001b4470"></A>.text:001b4470  1820a400        mult        a0,a1,a0                                
+<A NAME="001b4474"></A>.text:001b4474  d0ffbd27        addiu       sp,sp,-0x30                             
+<A NAME="001b4478"></A>.text:001b4478  a300023c        lui         v0,0xa3                                 
+<A NAME="001b447c"></A>.text:001b447c  1000b1ff        sd          s1,0x10(sp)                             
+<A NAME="001b4480"></A>.text:001b4480  2000bfff        sd          ra,0x20(sp)                             
+<A NAME="001b4484"></A>.text:001b4484  10f84224        addiu       v0,v0,-0x7f0                            
+<A NAME="001b4488"></A>.text:001b4488  0000b0ff        sd          s0,0x0(sp)                              
+<A NAME="001b448c"></A>.text:001b448c  21208300        addu        a0,a0,v1                                
+<A NAME="001b4490"></A>.text:001b4490  21104400        addu        v0,v0,a0                                
+<A NAME="001b4494"></A>.text:001b4494  1000438c        lw          v1,<A HREF="#00a2f820">0x10(v0)=>.bss:DAT_00a2f820</A>          ;= ??
+<A NAME="001b4498"></A>.text:001b4498  03006014        bne         v1,zero,<A HREF="#001b44a8">LAB_001b44a8</A>                    
+<A NAME="001b449c"></A>.text:001b449c  2d88c000        _move       s1,a2                                   
+<A NAME="001b44a0"></A>.text:001b44a0  09000010        b           <A HREF="#001b44c8">LAB_001b44c8</A>                            
+<A NAME="001b44a4"></A>.text:001b44a4  2d100000        _move       v0,zero                                 
+<A NAME="001b44a8"></A>                            LAB_001b44a8:                 ;XREF[1]:     <A HREF="#001b4498">001b4498(j)</A>
+.text:001b44a8  ecd0060c        jal         <A HREF="#001b43b0">FUN_001b43b0</A>                            ;undefined FUN_001b43b0()
+<A NAME="001b44ac"></A>.text:001b44ac  2d20e000        _move       a0,a3                                   
+<A NAME="001b44b0"></A>.text:001b44b0  2d804000        move        s0,v0                                   
+<A NAME="001b44b4"></A>.text:001b44b4  2d202002        move        a0,s1                                   
+<A NAME="001b44b8"></A>.text:001b44b8  6000068e        lw          a2,0x60(s0)                             
+<A NAME="001b44bc"></A>.text:001b44bc  e953070c        jal         <A HREF="#001d4fa4">FUN_001d4fa4</A>                            ;undefined FUN_001d4fa4()
+<A NAME="001b44c0"></A>.text:001b44c0  2d280002        _move       a1,s0                                   
+<A NAME="001b44c4"></A>.text:001b44c4  6000028e        lw          v0,0x60(s0)                             
+<A NAME="001b44c8"></A>                            LAB_001b44c8:                 ;XREF[1]:     <A HREF="#001b44a0">001b44a0(j)</A>
+.text:001b44c8  2000bfdf        ld          ra,0x20(sp)                             
+<A NAME="001b44cc"></A>.text:001b44cc  1000b1df        ld          s1,0x10(sp)                             
+<A NAME="001b44d0"></A>.text:001b44d0  0000b0df        ld          s0,0x0(sp)                              
+<A NAME="001b44d4"></A>.text:001b44d4  0800e003        jr          ra                                      
+<A NAME="001b44d8"></A>.text:001b44d8  3000bd27        _addiu      sp,sp,0x30                              
+<A NAME="001b44dc"></A>.text:001b44dc  00              ??          00h                                     
+<A NAME="001b44dd"></A>.text:001b44dd  00              ??          00h                                     
+<A NAME="001b44de"></A>.text:001b44de  00              ??          00h                                     
+<A NAME="001b44df"></A>.text:001b44df  00              ??          00h                                     
+<A NAME="001b44e0"></A>                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_001b44e0()
+                                                          ;XREF[2]:     <A HREF="#0017d36c">0017d36c(c)</A>,<A HREF="#00187c70">00187c70(c)</A>
+.text:001b44e0  2d308000        move        a2,a0                                   
+<A NAME="001b44e4"></A>.text:001b44e4  70000324        li          v1,0x70                                 
+<A NAME="001b44e8"></A>.text:001b44e8  1c000424        li          a0,0x1c                                 
+<A NAME="001b44ec"></A>.text:001b44ec  1818c370        mult1       v1,a2,v1                                
+<A NAME="001b44f0"></A>.text:001b44f0  1820a400        mult        a0,a1,a0                                
+<A NAME="001b44f4"></A>.text:001b44f4  f0ffbd27        addiu       sp,sp,-0x10                             
+<A NAME="001b44f8"></A>.text:001b44f8  a300023c        lui         v0,0xa3                                 
+<A NAME="001b44fc"></A>.text:001b44fc  0000bfff        sd          ra,0x0(sp)                              
+<A NAME="001b4500"></A>.text:001b4500  10f84224        addiu       v0,v0,-0x7f0                            
+<A NAME="001b4504"></A>.text:001b4504  21208300        addu        a0,a0,v1                                
+<A NAME="001b4508"></A>.text:001b4508  21104400        addu        v0,v0,a0                                
+<A NAME="001b450c"></A>.text:001b450c  1000438c        lw          v1,<A HREF="#00a2f820">0x10(v0)=>.bss:DAT_00a2f820</A>          ;= ??
+<A NAME="001b4510"></A>.text:001b4510  0e006010        beq         v1,zero,<A HREF="#001b454c">LAB_001b454c</A>                    
+<A NAME="001b4514"></A>.text:001b4514  63000224        _li         v0,0x63                                 
+<A NAME="001b4518"></A>.text:001b4518  ecd0060c        jal         <A HREF="#001b43b0">FUN_001b43b0</A>                            ;undefined FUN_001b43b0()
+<A NAME="001b451c"></A>.text:001b451c  2d20c000        _move       a0,a2                                   
+<A NAME="001b4520"></A>.text:001b4520  2d204000        move        a0,v0                                   
+<A NAME="001b4524"></A>.text:001b4524  06000324        li          v1,0x6                                  
+<A NAME="001b4528"></A>.text:001b4528  70008290        lbu         v0,0x70(a0)                             
+<A NAME="001b452c"></A>.text:001b452c  08004314        bne         v0,v1,<A HREF="#001b4550">LAB_001b4550</A>                      
+<A NAME="001b4530"></A>.text:001b4530  0000bfdf        _ld         ra,0x0(sp)                              
+<A NAME="001b4534"></A>.text:001b4534  71008390        lbu         v1,0x71(a0)                             
+<A NAME="001b4538"></A>.text:001b4538  02000224        li          v0,0x2                                  
+<A NAME="001b453c"></A>.text:001b453c  04006254        bnel        v1,v0,<A HREF="#001b4550">LAB_001b4550</A>                      
+<A NAME="001b4540"></A>.text:001b4540  70008290        _lbu        v0,0x70(a0)                             
+<A NAME="001b4544"></A>.text:001b4544  02000010        b           <A HREF="#001b4550">LAB_001b4550</A>                            
+<A NAME="001b4548"></A>.text:001b4548  05000224        _li         v0,0x5                                  
+<A NAME="001b454c"></A>                            LAB_001b454c:                 ;XREF[1]:     <A HREF="#001b4510">001b4510(j)</A>
+.text:001b454c  0000bfdf        ld          ra,0x0(sp)                              
+<A NAME="001b4550"></A>                            LAB_001b4550:                 ;XREF[3]:     <A HREF="#001b452c">001b452c(j)</A>,<A HREF="#001b453c">001b453c(j)</A>,<A HREF="#001b4544">001b4544(j)</A>
+.text:001b4550  0800e003        jr          ra                                      
+<A NAME="001b4554"></A>.text:001b4554  1000bd27        _addiu      sp,sp,0x10                              
+<A NAME="001b4558"></A>.text:001b4558  08              ??          08h                                     
+<A NAME="001b4559"></A>.text:001b4559  00              ??          00h                                     
+<A NAME="001b455a"></A>.text:001b455a  82              ??          82h                                     
+<A NAME="001b455b"></A>.text:001b455b  2c              ??          2Ch    ,                                
+<A NAME="001b455c"></A>.text:001b455c  08              ??          08h                                     
+<A NAME="001b455d"></A>.text:001b455d  00              ??          00h                                     
+<A NAME="001b455e"></A>.text:001b455e  40              ??          40h    @                                
+<A NAME="001b455f"></A>.text:001b455f  10              ??          10h                                     
+<A NAME="001b4560"></A>.text:001b4560  33              ??          33h    3                                
+<A NAME="001b4561"></A>.text:001b4561  00              ??          00h                                     
+<A NAME="001b4562"></A>.text:001b4562  02              ??          02h                                     
+<A NAME="001b4563"></A>.text:001b4563  3c              ??          3Ch    <                                
+<A NAME="001b4564"></A>.text:001b4564  31              ??          31h    1                                
+<A NAME="001b4565"></A>.text:001b4565  00              ??          00h                                     
+<A NAME="001b4566"></A>.text:001b4566  02              ??          02h                                     
+<A NAME="001b4567"></A>.text:001b4567  3c              ??          3Ch    <                                
+<A NAME="001b4568"></A>.text:001b4568  80              ??          80h                                     
+<A NAME="001b4569"></A>.text:001b4569  18              ??          18h                                     
+<A NAME="001b456a"></A>.text:001b456a  04              ??          04h                                     
+<A NAME="001b456b"></A>.text:001b456b  00              ??          00h                                     
+<A NAME="001b456c"></A>.text:001b456c  60              ??          60h    `                                
+<A NAME="001b456d"></A>.text:001b456d  2b              ??          2Bh    +                                
+<A NAME="001b456e"></A>.text:001b456e  42              ??          42h    B                                
+<A NAME="001b456f"></A>.text:001b456f  24              ??          24h    $                                
+<A NAME="001b4570"></A>.text:001b4570  2d              ??          2Dh    -                                ;?  ->  00a0202d
+<A NAME="001b4571"></A>.text:001b4571  20              ??          20h                                     
+<A NAME="001b4572"></A>.text:001b4572  a0              ??          A0h                                     
+<A NAME="001b4573"></A>.text:001b4573  00              ??          00h                                     
+<A NAME="001b4574"></A>.text:001b4574  21              ??          21h    !                                ;?  ->  00621821
+<A NAME="001b4575"></A>.text:001b4575  18              ??          18h                                     
+<A NAME="001b4576"></A>.text:001b4576  62              ??          62h    b                                
+<A NAME="001b4577"></A>.text:001b4577  00              ??          00h                                     
+<A NAME="001b4578"></A>.text:001b4578  1d              ??          1Dh                                     
+<A NAME="001b4579"></A>.text:001b4579  58              ??          58h    X                                
+<A NAME="001b457a"></A>.text:001b457a  07              ??          07h                                     
+<A NAME="001b457b"></A>.text:001b457b  08              ??          08h                                     
+<A NAME="001b457c"></A>.text:001b457c  00              ??          00h                                     
+<A NAME="001b457d"></A>.text:001b457d  00              ??          00h                                     
+<A NAME="001b457e"></A>.text:001b457e  65              ??          65h    e                                
+<A NAME="001b457f"></A>.text:001b457f  8c              ??          8Ch                                     
+<A NAME="001b4580"></A>.text:001b4580  d8              ??          D8h                                     
+<A NAME="001b4581"></A>.text:001b4581  2d              ??          2Dh    -                                
+<A NAME="001b4582"></A>.text:001b4582  43              ??          43h    C                                
+<A NAME="001b4583"></A>.text:001b4583  90              ??          90h                                     
+<A NAME="001b4584"></A>.text:001b4584  08              ??          08h                                     
+<A NAME="001b4585"></A>.text:001b4585  00              ??          00h                                     
+<A NAME="001b4586"></A>.text:001b4586  e0              ??          E0h                                     
+<A NAME="001b4587"></A>.text:001b4587  03              ??          03h                                     
+<A NAME="001b4588"></A>.text:001b4588  00              ??          00h                                     
+<A NAME="001b4589"></A>.text:001b4589  00              ??          00h                                     
+<A NAME="001b458a"></A>.text:001b458a  a3              ??          A3h                                     
+<A NAME="001b458b"></A>.text:001b458b  a0              ??          A0h                                     
+<A NAME="001b458c"></A>.text:001b458c  00              ??          00h                                     
+<A NAME="001b458d"></A>.text:001b458d  00              ??          00h                                     
+<A NAME="001b458e"></A>.text:001b458e  00              ??          00h                                     
+<A NAME="001b458f"></A>.text:001b458f  00              ??          00h                                     
+<A NAME="001b4590"></A>                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_001b4590()
+                                                          ;XREF[4]:     <A HREF="#001b4a84">001b4a84(c)</A>,<A HREF="#001b4c20">001b4c20(c)</A>,<A HREF="#001b4d88">001b4d88(c)</A>,<A HREF="#001b4f64">001b4f64(c)</A>
+.text:001b4590  2d388000        move        a3,a0                                   
+<A NAME="001b4594"></A>.text:001b4594  70000324        li          v1,0x70                                 
+<A NAME="001b4598"></A>.text:001b4598  1c000424        li          a0,0x1c                                 
+<A NAME="001b459c"></A>.text:001b459c  1818e370        mult1       v1,a3,v1                                
+<A NAME="001b45a0"></A>.text:001b45a0  1820a400        mult        a0,a1,a0                                
+<A NAME="001b45a4"></A>.text:001b45a4  e0ffbd27        addiu       sp,sp,-0x20                             
+<A NAME="001b45a8"></A>.text:001b45a8  a300023c        lui         v0,0xa3                                 
+<A NAME="001b45ac"></A>.text:001b45ac  0000b0ff        sd          s0,0x0(sp)                              
+<A NAME="001b45b0"></A>.text:001b45b0  1000bfff        sd          ra,0x10(sp)                             
+<A NAME="001b45b4"></A>.text:001b45b4  10f84224        addiu       v0,v0,-0x7f0                            
+<A NAME="001b45b8"></A>.text:001b45b8  21208300        addu        a0,a0,v1                                
+<A NAME="001b45bc"></A>.text:001b45bc  21104400        addu        v0,v0,a0                                
+<A NAME="001b45c0"></A>.text:001b45c0  1000438c        lw          v1,<A HREF="#00a2f820">0x10(v0)=>.bss:DAT_00a2f820</A>          ;= ??
+<A NAME="001b45c4"></A>.text:001b45c4  03006014        bne         v1,zero,<A HREF="#001b45d4">LAB_001b45d4</A>                    
+<A NAME="001b45c8"></A>.text:001b45c8  2d80c000        _move       s0,a2                                   
+<A NAME="001b45cc"></A>.text:001b45cc  05000010        b           <A HREF="#001b45e4">LAB_001b45e4</A>                            
+<A NAME="001b45d0"></A>.text:001b45d0  2d100000        _move       v0,zero                                 
+<A NAME="001b45d4"></A>                            LAB_001b45d4:                 ;XREF[1]:     <A HREF="#001b45c4">001b45c4(j)</A>
+.text:001b45d4  ecd0060c        jal         <A HREF="#001b43b0">FUN_001b43b0</A>                            ;undefined FUN_001b43b0()
+<A NAME="001b45d8"></A>.text:001b45d8  2d20e000        _move       a0,a3                                   
+<A NAME="001b45dc"></A>.text:001b45dc  710050a0        sb          s0,0x71(v0)                             
+<A NAME="001b45e0"></A>.text:001b45e0  01000224        li          v0,0x1                                  
+<A NAME="001b45e4"></A>                            LAB_001b45e4:                 ;XREF[1]:     <A HREF="#001b45cc">001b45cc(j)</A>
+.text:001b45e4  1000bfdf        ld          ra,0x10(sp)                             
+<A NAME="001b45e8"></A>.text:001b45e8  0000b0df        ld          s0,0x0(sp)                              
+<A NAME="001b45ec"></A>.text:001b45ec  0800e003        jr          ra                                      
+<A NAME="001b45f0"></A>.text:001b45f0  2000bd27        _addiu      sp,sp,0x20                              
+<A NAME="001b45f4"></A>.text:001b45f4  00              ??          00h                                     
+<A NAME="001b45f5"></A>.text:001b45f5  00              ??          00h                                     
+<A NAME="001b45f6"></A>.text:001b45f6  00              ??          00h                                     
+<A NAME="001b45f7"></A>.text:001b45f7  00              ??          00h                                     
+<A NAME="001b45f8"></A>                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_001b45f8()
+                                                          ;XREF[5]:     <A HREF="#00187d74">00187d74(c)</A>,<A HREF="#00187d8c">00187d8c(c)</A>,<A HREF="#00187e5c">00187e5c(c)</A>,<A HREF="#00187e74">00187e74(c)</A>,
+                                                          ;             <A HREF="#00187e8c">00187e8c(c)</A>
+.text:001b45f8  2d308000        move        a2,a0                                   
+<A NAME="001b45fc"></A>.text:001b45fc  70000324        li          v1,0x70                                 
+<A NAME="001b4600"></A>.text:001b4600  1c000424        li          a0,0x1c                                 
+<A NAME="001b4604"></A>.text:001b4604  1818c370        mult1       v1,a2,v1                                
+<A NAME="001b4608"></A>.text:001b4608  1820a400        mult        a0,a1,a0                                
+<A NAME="001b460c"></A>.text:001b460c  f0ffbd27        addiu       sp,sp,-0x10                             
+<A NAME="001b4610"></A>.text:001b4610  a300023c        lui         v0,0xa3                                 
+<A NAME="001b4614"></A>.text:001b4614  0000bfff        sd          ra,0x0(sp)                              
+<A NAME="001b4618"></A>.text:001b4618  10f84224        addiu       v0,v0,-0x7f0                            
+<A NAME="001b461c"></A>.text:001b461c  21208300        addu        a0,a0,v1                                
+<A NAME="001b4620"></A>.text:001b4620  21104400        addu        v0,v0,a0                                
+<A NAME="001b4624"></A>.text:001b4624  1000438c        lw          v1,<A HREF="#00a2f820">0x10(v0)=>.bss:DAT_00a2f820</A>          ;= ??
+<A NAME="001b4628"></A>.text:001b4628  04006010        beq         v1,zero,<A HREF="#001b463c">LAB_001b463c</A>                    
+<A NAME="001b462c"></A>.text:001b462c  2d100000        _move       v0,zero                                 
+<A NAME="001b4630"></A>.text:001b4630  ecd0060c        jal         <A HREF="#001b43b0">FUN_001b43b0</A>                            ;undefined FUN_001b43b0()
+<A NAME="001b4634"></A>.text:001b4634  2d20c000        _move       a0,a2                                   
+<A NAME="001b4638"></A>.text:001b4638  71004290        lbu         v0,0x71(v0)                             
+<A NAME="001b463c"></A>                            LAB_001b463c:                 ;XREF[1]:     <A HREF="#001b4628">001b4628(j)</A>
+.text:001b463c  0000bfdf        ld          ra,0x0(sp)                              
+<A NAME="001b4640"></A>.text:001b4640  0800e003        jr          ra                                      
+<A NAME="001b4644"></A>.text:001b4644  1000bd27        _addiu      sp,sp,0x10                              
