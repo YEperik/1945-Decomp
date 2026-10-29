@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "org.YEperik.port1945"
+    namespace = "org.mkvium.port1945"
     compileSdk = 36
 
     compileOptions {
@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.YEperik.port1945"
+        applicationId = "org.mkvium.port1945"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
