@@ -21,7 +21,11 @@ add_library(portcore SHARED
     "${GAME_DIR}/tim_texture_renderer.cpp"
     "${GAME_DIR}/audio_engine.c"
     "${GAME_DIR}/ps2_audio_control.c"
+    "${GAME_DIR}/ps2_audio_cdrom_path.c"
     "${GAME_DIR}/ps2_audio_sequence_catalog.c"
+    "${GAME_DIR}/ps2_audio_snd2_sequence_catalog.c"
+    "${GAME_DIR}/ps2_audio_resource_loader.c"
+    "${GAME_DIR}/ps2_audio_bd_stream.c"
     "${GAME_DIR}/game_renderer.cpp"
     "${GAME_DIR}/game_bridge.cpp"
 )
